@@ -22,7 +22,7 @@ const Menu = () => {
             <ShoppingCart /> Cart
           </Link>
         </Button>
-        {/* <UserButton /> */}
+        <UserButton />
       </nav>
       <nav className='md:hidden'>
         <Sheet>
@@ -37,7 +37,7 @@ const Menu = () => {
                 <ShoppingCart /> Cart
               </Link>
             </Button>
-            {/* <UserButton /> */}
+            <UserButton />
             <SheetDescription></SheetDescription>
           </SheetContent>
         </Sheet>
