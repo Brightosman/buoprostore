@@ -8,7 +8,7 @@ import Image from "next/image";
 
 export default async function Homepage() {
   const latestProducts = await getLatestProducts();
-  console.log("latestProducts", latestProducts);
+  // console.log("latestProducts", latestProducts);
   return (
     <div>
         <Button>ProStore</Button> 

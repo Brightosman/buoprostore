@@ -8,6 +8,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AddToCart from '@/components/shared/product/add-to-cart';
 import { Button } from '@/components/ui/button';
+import { getMyCart } from '@/lib/actions/cart.actions';
+import { auth } from '@/auth';
 
 const ProductDetailsPage  = async (props: {params: Promise<{slug: string}>}) => {
     const {slug} = await props.params;
@@ -15,6 +17,12 @@ const ProductDetailsPage  = async (props: {params: Promise<{slug: string}>}) => 
     const product = await getProductBySlug(slug);
 
     if(!product) notFound()
+    
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    const cart = await getMyCart();
+
   return (
     <>
         <section>
@@ -66,7 +74,7 @@ const ProductDetailsPage  = async (props: {params: Promise<{slug: string}>}) => 
                         </div>
                         {product.stock > 0 && (
                         <div className='flex-center'>
-                            {/* <AddToCart
+                            <AddToCart
                             cart={cart}
                             item={{
                                 productId: product.id,
@@ -76,8 +84,8 @@ const ProductDetailsPage  = async (props: {params: Promise<{slug: string}>}) => 
                                 qty: 1,
                                 image: product.images![0],
                             }}
-                            /> */}
-                            <Button className='w-full'>Add To Cart</Button>
+                            />
+                            {/* <Button className='w-full'>Add To Cart</Button> */}
                         </div>
                         )}
                     </CardContent>

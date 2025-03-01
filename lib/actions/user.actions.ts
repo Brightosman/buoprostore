@@ -8,7 +8,8 @@ import {
   updateUserSchema,
 } from '../validators';
 import { auth, signIn, signOut } from '@/auth';
-import { isRedirectError } from 'next/dist/client/components/redirect';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
+import { hash } from '../encrypt';
 import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
 import { ShippingAddress } from '@/types';
@@ -17,7 +18,6 @@ import { PAGE_SIZE } from '../constants';
 import { revalidatePath } from 'next/cache';
 import { Prisma } from '@prisma/client';
 import { getMyCart } from './cart.actions';
-import { hash } from '../encrypt';
 
 // Sign in the user with credentials
 export async function signInWithCredentials(
@@ -64,10 +64,21 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
       confirmPassword: formData.get('confirmPassword'),
     });
 
+    console.log('Received user data:', user);
+
     const plainPassword = user.password;
 
-    user.password = await hash(user.password);
+    // Check if password exists
+    if (!plainPassword) {
+      return { success: false, message: 'Password cannot be empty' };
+    }
 
+    // Hash the password
+    user.password = await hash(plainPassword);
+    
+    console.log('Hashed password:', user.password);
+
+    // Store user in DB
     await prisma.user.create({
       data: {
         name: user.name,
@@ -86,10 +97,10 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
     if (isRedirectError(error)) {
       throw error;
     }
+    console.error('Error in signUpUser:', error);
     return { success: false, message: formatError(error) };
   }
 }
-
 // Get user by the ID
 export async function getUserById(userId: string) {
   const user = await prisma.user.findFirst({
