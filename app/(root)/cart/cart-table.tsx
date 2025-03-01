@@ -1,29 +1,18 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
 import { useTransition } from 'react';
 import { addItemToCart, removeItemFromCart } from '@/lib/actions/cart.actions';
 import { ArrowRight, Loader, Minus, Plus } from 'lucide-react';
 import { Cart, CartItem } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableCell,
-} from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
+import { toast } from 'sonner';
 
-// NOTE: The code here has changed from the original course code so that the
-// Buttons no longer share the same state and show the loader independently from
-// other items in the cart
 function AddButton({ item }: { item: CartItem }) {
-  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   return (
     <Button
@@ -33,27 +22,18 @@ function AddButton({ item }: { item: CartItem }) {
       onClick={() =>
         startTransition(async () => {
           const res = await addItemToCart(item);
-
           if (!res.success) {
-            toast({
-              variant: 'destructive',
-              description: res.message,
-            });
+            toast.error(res.message);
           }
         })
       }
     >
-      {isPending ? (
-        <Loader className='w-4 h-4 animate-spin' />
-      ) : (
-        <Plus className='w-4 h-4' />
-      )}
+      {isPending ? <Loader className='w-4 h-4 animate-spin' /> : <Plus className='w-4 h-4' />}
     </Button>
   );
 }
 
 function RemoveButton({ item }: { item: CartItem }) {
-  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   return (
     <Button
@@ -63,21 +43,13 @@ function RemoveButton({ item }: { item: CartItem }) {
       onClick={() =>
         startTransition(async () => {
           const res = await removeItemFromCart(item.productId);
-
           if (!res.success) {
-            toast({
-              variant: 'destructive',
-              description: res.message,
-            });
+            toast.error(res.message);
           }
         })
       }
     >
-      {isPending ? (
-        <Loader className='w-4 h-4 animate-spin' />
-      ) : (
-        <Minus className='w-4 h-4' />
-      )}
+      {isPending ? <Loader className='w-4 h-4 animate-spin' /> : <Minus className='w-4 h-4' />}
     </Button>
   );
 }
@@ -108,16 +80,8 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                 {cart.items.map((item) => (
                   <TableRow key={item.slug}>
                     <TableCell>
-                      <Link
-                        href={`/product/${item.slug}`}
-                        className='flex items-center'
-                      >
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          width={50}
-                          height={50}
-                        />
+                      <Link href={`/product/${item.slug}`} className='flex items-center'>
+                        <Image src={item.image} alt={item.name} width={50} height={50} />
                         <span className='px-2'>{item.name}</span>
                       </Link>
                     </TableCell>
@@ -137,22 +101,14 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
             <CardContent className='p-4 gap-4'>
               <div className='pb-3 text-xl'>
                 Subtotal ({cart.items.reduce((a, c) => a + c.qty, 0)}):
-                <span className='font-bold'>
-                  {formatCurrency(cart.itemsPrice)}
-                </span>
+                <span className='font-bold'>{formatCurrency(cart.itemsPrice)}</span>
               </div>
               <Button
                 className='w-full'
                 disabled={isPending}
-                onClick={() =>
-                  startTransition(() => router.push('/shipping-address'))
-                }
+                onClick={() => startTransition(() => router.push('/shipping-address'))}
               >
-                {isPending ? (
-                  <Loader className='w-4 h-4 animate-spin' />
-                ) : (
-                  <ArrowRight className='w-4 h-4' />
-                )}{' '}
+                {isPending ? <Loader className='w-4 h-4 animate-spin' /> : <ArrowRight className='w-4 h-4' />}
                 Proceed to Checkout
               </Button>
             </CardContent>
